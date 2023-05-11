@@ -1,2 +1,4 @@
 # OpenEO-UDP-UDF-catalogue
- UDP (user defined processes) which can be called then in OpenEO from ARIES
+
+catalog to store OpenEO UDP (user-defined processes) and UDF (user-defined functions) which can be called in OpenEO
+The UDP/UDF will be called via their URL.
