@@ -1,6 +1,5 @@
-import numpy
+import numpy as np
 from openeo.udf import XarrayDataCube
-from openeo.processes import nan
 import xarray
 
 
@@ -14,7 +13,7 @@ def apply_datacube(cube: XarrayDataCube, context: dict) -> XarrayDataCube:
     class_mapping = context["class_mapping"]
 
     array: xarray.DataArray = cube.get_array()
-    result = numpy.full_like(array.values, nan())
+    result = np.full_like(array.values, np.nan)
 
     for k, v in class_mapping.items():
         # Note: JSON-encoding of the class mapping converted the keys from int to strings, so we have to undo that
