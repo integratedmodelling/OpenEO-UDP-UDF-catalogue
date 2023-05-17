@@ -37,9 +37,12 @@ output_root = r'/data/people_vol1/tests'
 ##################################
 
 ########## WORK section
-# establish connection to OpenEO instance
-#connection = openeo.connect("openeo.vito.be").authenticate_oidc()
-connection = openeo.connect("openeo-dev.vito.be").authenticate_oidc()
+# Establish connection to OpenEO instance (note that authentication is not necessary to just build the UDP)
+connection = openeo.connect(
+    # url="openeo.vito.be"
+    url="openeo-dev.vito.be"
+)
+# connection.authenticate_oidc()
 
 param_geo = Parameter(
         name="geometry",
