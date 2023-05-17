@@ -195,7 +195,7 @@
       "result": true
     }
   },
-  "id": "CGLS_FCOVER_ANNUAL_MEAN",
+  "id": "dummy_udp",
   "summary": "Annual mean composite of Copernicus Global Land FCover",
   "description": "Given a year and area of interest, returns a mean composite of [FCover](https://land.copernicus.eu/global/products/fcover).",
   "parameters": [

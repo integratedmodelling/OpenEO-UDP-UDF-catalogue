@@ -74,7 +74,7 @@ Given a year and area of interest, returns a mean composite of [FCover](https://
 """
 
 spec = build_process_dict(
-    process_id="CGLS_FCOVER_ANNUAL_MEAN",
+    process_id="dummy_udp",
     summary="Annual mean composite of Copernicus Global Land FCover",
     description=description.strip(),
     parameters=[
