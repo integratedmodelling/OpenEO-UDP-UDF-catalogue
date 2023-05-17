@@ -1,7 +1,7 @@
 {
   "process_graph": {
-    "textconcat1": {
-      "process_id": "text_concat",
+    "textmerge1": {
+      "process_id": "text_merge",
       "arguments": {
         "data": [
           {
@@ -13,8 +13,8 @@
         "separator": "-"
       }
     },
-    "textconcat2": {
-      "process_id": "text_concat",
+    "textmerge2": {
+      "process_id": "text_merge",
       "arguments": {
         "data": [
           {
@@ -36,10 +36,10 @@
         "spatial_extent": null,
         "temporal_extent": [
           {
-            "from_node": "textconcat1"
+            "from_node": "textmerge1"
           },
           {
-            "from_node": "textconcat2"
+            "from_node": "textmerge2"
           }
         ]
       }
@@ -54,10 +54,10 @@
         "spatial_extent": null,
         "temporal_extent": [
           {
-            "from_node": "textconcat1"
+            "from_node": "textmerge1"
           },
           {
-            "from_node": "textconcat2"
+            "from_node": "textmerge2"
           }
         ]
       }
