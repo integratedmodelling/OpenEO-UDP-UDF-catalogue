@@ -16,6 +16,7 @@
 import openeo
 from openeo.api.process import Parameter
 from openeo.processes import if_, and_,gte, text_concat
+from openeo.rest.udp import build_process_dict
 import json
 import os
 import datetime
@@ -120,16 +121,16 @@ description= """
 Given a year and area of interest, returns a mean composite of [FCover](https://land.copernicus.eu/global/products/fcover).
 """
 
-spec = {
-        "id": "CGLS_FCOVER_ANNUAL_MEAN",
-        "summary": "Annual mean composite of Copernicus Global Land FCover",
-        "description": description,
-        "parameters": [
-            param_geo.to_dict(),
-            param_year.to_dict(),
-            param_resolution.to_dict()
-        ],
-        "process_graph": resampled_AOI.flat_graph()
-    }
+spec = build_process_dict(
+    process_id="CGLS_FCOVER_ANNUAL_MEAN",
+    summary="Annual mean composite of Copernicus Global Land FCover",
+    description=description.strip(),
+    parameters=[
+        param_geo,
+        param_year,
+        param_resolution,
+    ],
+    process_graph=resampled_AOI,
+)
 
 print(json.dumps(spec,indent=2))
