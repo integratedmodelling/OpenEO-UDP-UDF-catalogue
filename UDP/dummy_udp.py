@@ -59,7 +59,7 @@ cube = if_(gte(param_year, 2015), datacube1, datacube2)
 cube = cube.apply(lambda x: if_(and_(x >= 0, x <= 250), x / 250.0))
 
 # reduce the temporal dimension with mean reducer
-cube = cube.reduce_dimension(dimension="t", reducer="mean")
+cube = cube.reduce_dimension(dimension="t", reducer=lambda data: data.mean())
 
 # resample output to correct EPSG
 cube = cube.resample_spatial(

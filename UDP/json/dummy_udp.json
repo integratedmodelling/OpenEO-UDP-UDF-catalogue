@@ -154,7 +154,19 @@
           "from_node": "apply1"
         },
         "dimension": "t",
-        "reducer": "mean"
+        "reducer": {
+          "process_graph": {
+            "mean1": {
+              "process_id": "mean",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                }
+              },
+              "result": true
+            }
+          }
+        }
       }
     },
     "resamplespatial1": {
