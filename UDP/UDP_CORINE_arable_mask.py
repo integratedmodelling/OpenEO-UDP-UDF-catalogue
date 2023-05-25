@@ -67,7 +67,7 @@ cube = cube.reduce_dimension(dimension='t', reducer=lambda x: x.last(ignore_noda
 # reclassify using the dic
 # load the UDF from URL (NOTE: you have to use the raw file download)
 url_raw = 'https://raw.githubusercontent.com/integratedmodelling/OpenEO-UDP-UDF-catalogue/main/UDF/UDF_remapping.py'
-udf = openeo.UDF.from_url(url_raw, context={"class_mapping": param_remap_dict})
+udf = openeo.UDF.from_url(url_raw, context={"class_mapping": {"from_parameter": param_remap_dict.name}})
 cube = cube.apply(process=udf)
 
 # warp to specified projection and resolution if needed
