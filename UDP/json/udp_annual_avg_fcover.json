@@ -163,7 +163,19 @@
           "from_node": "apply1"
         },
         "dimension": "t",
-        "reducer": "mean"
+        "reducer": {
+          "process_graph": {
+            "mean1": {
+              "process_id": "mean",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                }
+              },
+              "result": true
+            }
+          }
+        }
       }
     },
     "resamplespatial1": {
@@ -209,7 +221,7 @@
     }
   },
   "id": "udp_annual_avg_fcover",
-  "summary": "Annual mean composite of Copernicus Global Land FCOVER",
+  "summary": "Annual mean composite of Copernicus Global Land FCOVER. Returns a single band RasterCube.",
   "description": "Given a year and area of interest, returns a mean composite of [FCover](https://land.copernicus.eu/global/products/fcover).",
   "parameters": [
     {

@@ -83,7 +83,8 @@ Creates a arable/non-arable mask for the CORINE Accounting Layers based on a giv
 
 spec = build_process_dict(
     process_id="udp_CORINE_arable_mask",
-    summary="arable/non-arable mask based on CORINE ACC remapped with custom dictionary.",
+    summary="arable/non-arable mask based on CORINE ACC remapped with custom dictionary. "
+            "Returns a single band RasterCube.",
     description=description.strip(),
     parameters=[
         param_geo,

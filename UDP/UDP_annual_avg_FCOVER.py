@@ -63,7 +63,7 @@ cube = if_(gte(param_year, 2015), datacube1, datacube2)
 cube = cube.apply(lambda x: if_(and_(x >= 0, x <= 250), x / 250.0))
 
 # reduce the temporal dimension with mean reducer
-cube = cube.reduce_dimension(dimension="t", reducer='mean')
+cube = cube.reduce_dimension(dimension="t", reducer=lambda data: data.mean())
 
 # warp to specified projection and resolution if needed
 cube_resample = cube.resample_spatial(resolution=param_resolution, projection=param_epsg, method="bilinear")
@@ -78,7 +78,7 @@ Given a year and area of interest, returns a mean composite of [FCover](https://
 
 spec = build_process_dict(
     process_id="udp_annual_avg_fcover",
-    summary="Annual mean composite of Copernicus Global Land FCOVER",
+    summary="Annual mean composite of Copernicus Global Land FCOVER. Returns a single band RasterCube.",
     description=description.strip(),
     parameters=[
         param_geo,
