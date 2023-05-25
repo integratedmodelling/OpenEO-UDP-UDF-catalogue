@@ -6,14 +6,11 @@ Export algorithm to UDP json, e.g.
     python UDP/UDP_annual_avg_FCOVER.py > UDP/json/udp_annual_avg_fcover.json
 
 """
-
 import json
-
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import if_, and_, gte, eq, process
+from openeo.processes import if_, and_, gte, process, add
 from openeo.rest.udp import build_process_dict
-
 
 # Establish connection to OpenEO instance (note that authentication is not necessary to just build the UDP)
 connection = openeo.connect(url="openeo-dev.vito.be")
@@ -49,12 +46,8 @@ param_resolution = Parameter.number(
     description="The desired resolution, specified in units of the projection system, which is meters by default.",
 )
 
-# TODO: legacy `text_merge` vs new `text_concat`, see https://github.com/Open-EO/openeo-python-driver/issues/196
-# start = text_concat([param_year, 1, 1], "-")
-# end = text_concat([param_year+1, 1, 1], "-")
 start = process("text_merge", data=[param_year, 1, 1], separator="-")
-#TODO: get an error with the next line..... please get it running
-end = process("text_merge", data=[param_year + 1, 1, 1], separator="-")
+end = process("text_merge", data=[add(param_year, 1), 1, 1], separator="-")
 
 datacube1 = connection.load_collection(
     "CGLS_FCOVER300_V1_GLOBAL", temporal_extent=[start, end], bands=["FCOVER"]
@@ -74,7 +67,7 @@ cube = cube.reduce_dimension(dimension="t", reducer='mean')
 
 # warp to specified projection and resolution if needed
 cube_resample = cube.resample_spatial(resolution=param_resolution, projection=param_epsg, method="bilinear")
-cube = if_(eq(param_warp, True), cube_resample, cube)
+cube = if_(param_warp, cube_resample, cube)
 
 # filter spatial by BBOX given in the specified EPSG
 cube = cube.filter_spatial(geometries=param_geo)
