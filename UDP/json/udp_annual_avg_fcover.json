@@ -1,5 +1,14 @@
 {
   "process_graph": {
+    "gte1": {
+      "process_id": "gte",
+      "arguments": {
+        "x": {
+          "from_parameter": "year"
+        },
+        "y": 2015
+      }
+    },
     "textmerge1": {
       "process_id": "text_merge",
       "arguments": {
@@ -13,24 +22,15 @@
         "separator": "-"
       }
     },
-    "add1": {
-      "process_id": "add",
-      "arguments": {
-        "x": {
-          "from_parameter": "year"
-        },
-        "y": 1
-      }
-    },
     "textmerge2": {
       "process_id": "text_merge",
       "arguments": {
         "data": [
           {
-            "from_node": "add1"
+            "from_parameter": "year"
           },
-          1,
-          1
+          12,
+          31
         ],
         "separator": "-"
       }
@@ -71,15 +71,6 @@
         ]
       }
     },
-    "gte1": {
-      "process_id": "gte",
-      "arguments": {
-        "x": {
-          "from_parameter": "year"
-        },
-        "y": 2015
-      }
-    },
     "if1": {
       "process_id": "if",
       "arguments": {
@@ -108,7 +99,7 @@
                 "x": {
                   "from_parameter": "x"
                 },
-                "y": 250.0
+                "y": 250
               }
             },
             "gte2": {
@@ -186,24 +177,10 @@
         },
         "method": "bilinear",
         "projection": {
-          "from_parameter": "output_epsg"
+          "from_parameter": "projection"
         },
         "resolution": {
           "from_parameter": "resolution"
-        }
-      }
-    },
-    "if3": {
-      "process_id": "if",
-      "arguments": {
-        "accept": {
-          "from_node": "resamplespatial1"
-        },
-        "reject": {
-          "from_node": "reducedimension1"
-        },
-        "value": {
-          "from_parameter": "output_warp"
         }
       }
     },
@@ -211,7 +188,7 @@
       "process_id": "filter_spatial",
       "arguments": {
         "data": {
-          "from_node": "if3"
+          "from_node": "resamplespatial1"
         },
         "geometries": {
           "from_parameter": "geometry"
@@ -220,8 +197,8 @@
       "result": true
     }
   },
-  "id": "udp_annual_avg_fcover",
-  "summary": "Annual mean composite of Copernicus Global Land FCOVER. Returns a single band RasterCube.",
+  "id": "dummy_udp",
+  "summary": "Annual mean composite of Copernicus Global Land FCover",
   "description": "Given a year and area of interest, returns a mean composite of [FCover](https://land.copernicus.eu/global/products/fcover).",
   "parameters": [
     {
@@ -242,24 +219,6 @@
       "optional": true
     },
     {
-      "name": "output_warp",
-      "description": "Boolean switch if output should be warped to given projection and resolution, default=False.",
-      "schema": {
-        "type": "boolean"
-      },
-      "default": false,
-      "optional": true
-    },
-    {
-      "name": "output_epsg",
-      "description": "The desired output projection system, which is EPSG:3035 by default.",
-      "schema": {
-        "type": "integer"
-      },
-      "default": 3035,
-      "optional": true
-    },
-    {
       "name": "resolution",
       "description": "The desired resolution, specified in units of the projection system, which is meters by default.",
       "schema": {
@@ -267,6 +226,19 @@
       },
       "default": 100,
       "optional": true
+    },
+    {
+      "schema": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "array"
+        }
+      ],
+      "name": "projection",
+      "optional": true,
+      "default": 3035
     }
   ]
 }
