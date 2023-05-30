@@ -39,10 +39,10 @@ param_resolution = Parameter.number(
 )
 
 # TODO: legacy `text_merge` vs new `text_concat`, see https://github.com/Open-EO/openeo-python-driver/issues/196
-# start = text_concat([param_year, 1, 1], "-")
-# end = text_concat([param_year, 12, 31], "-")
-start = process("text_merge", data=[param_year, 1, 1], separator="-")
-end = process("text_merge", data=[param_year, 12, 31], separator="-")
+# start = text_concat([param_year, "01", "01"], "-")
+# end = text_concat([param_year, "12", "31"], "-")
+start = process("text_merge", data=[param_year, "01", "01"], separator="-")
+end = process("text_merge", data=[param_year, "12", "31"], separator="-")
 
 
 datacube1 = connection.load_collection(

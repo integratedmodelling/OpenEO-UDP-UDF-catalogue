@@ -16,8 +16,8 @@
           {
             "from_parameter": "year"
           },
-          1,
-          1
+          "01",
+          "01"
         ],
         "separator": "-"
       }
@@ -29,8 +29,8 @@
           {
             "from_parameter": "year"
           },
-          12,
-          31
+          "12",
+          "31"
         ],
         "separator": "-"
       }
