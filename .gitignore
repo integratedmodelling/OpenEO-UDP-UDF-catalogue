@@ -179,3 +179,4 @@ pyrightconfig.json
 *.tif
 *.tiff
 *.aux.xml
+!/examples/.ipynb_checkpoints/call_udp_from_python-checkpoint.ipynb
