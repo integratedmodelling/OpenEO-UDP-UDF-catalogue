@@ -57,7 +57,11 @@ datacube2 = connection.load_collection(
     "CGLS_GDMP_V2_GLOBAL", temporal_extent=[start, end], bands=["GDMP"]
 )
 
-cube = if_(gte(param_year, 2015), datacube1, datacube2)
+# select correct data for requested year
+# cube = if_(gte(param_year, 2015), datacube1, datacube2)
+# due to an bug we have to use the more complicated code
+cube = datacube1.process(process_id="if",
+                         arguments={"value": gte(param_year, 2015), "accept": datacube1, "reject": datacube2})
 
 # masking to valid data and rescaling
 cube = cube.apply(lambda x: if_(and_(x >= 0, x <= 32767), x * 0.02))

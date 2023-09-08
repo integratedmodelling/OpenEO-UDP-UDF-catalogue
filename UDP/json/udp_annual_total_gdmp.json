@@ -1,0 +1,297 @@
+{
+  "process_graph": {
+    "textmerge1": {
+      "process_id": "text_merge",
+      "arguments": {
+        "data": [
+          {
+            "from_parameter": "year"
+          },
+          "01",
+          "01"
+        ],
+        "separator": "-"
+      }
+    },
+    "add1": {
+      "process_id": "add",
+      "arguments": {
+        "x": {
+          "from_parameter": "year"
+        },
+        "y": 1
+      }
+    },
+    "textmerge2": {
+      "process_id": "text_merge",
+      "arguments": {
+        "data": [
+          {
+            "from_node": "add1"
+          },
+          "01",
+          "01"
+        ],
+        "separator": "-"
+      }
+    },
+    "loadcollection1": {
+      "process_id": "load_collection",
+      "arguments": {
+        "bands": [
+          "GDMP"
+        ],
+        "id": "CGLS_GDMP300_V1_GLOBAL",
+        "spatial_extent": null,
+        "temporal_extent": [
+          {
+            "from_node": "textmerge1"
+          },
+          {
+            "from_node": "textmerge2"
+          }
+        ]
+      }
+    },
+    "loadcollection2": {
+      "process_id": "load_collection",
+      "arguments": {
+        "bands": [
+          "GDMP"
+        ],
+        "id": "CGLS_GDMP_V2_GLOBAL",
+        "spatial_extent": null,
+        "temporal_extent": [
+          {
+            "from_node": "textmerge1"
+          },
+          {
+            "from_node": "textmerge2"
+          }
+        ]
+      }
+    },
+    "gte1": {
+      "process_id": "gte",
+      "arguments": {
+        "x": {
+          "from_parameter": "year"
+        },
+        "y": 2015
+      }
+    },
+    "if1": {
+      "process_id": "if",
+      "arguments": {
+        "accept": {
+          "from_node": "loadcollection1"
+        },
+        "reject": {
+          "from_node": "loadcollection2"
+        },
+        "value": {
+          "from_node": "gte1"
+        }
+      }
+    },
+    "apply1": {
+      "process_id": "apply",
+      "arguments": {
+        "data": {
+          "from_node": "if1"
+        },
+        "process": {
+          "process_graph": {
+            "multiply1": {
+              "process_id": "multiply",
+              "arguments": {
+                "x": {
+                  "from_parameter": "x"
+                },
+                "y": 0.02
+              }
+            },
+            "gte2": {
+              "process_id": "gte",
+              "arguments": {
+                "x": {
+                  "from_parameter": "x"
+                },
+                "y": 0
+              }
+            },
+            "lte1": {
+              "process_id": "lte",
+              "arguments": {
+                "x": {
+                  "from_parameter": "x"
+                },
+                "y": 32767
+              }
+            },
+            "and1": {
+              "process_id": "and",
+              "arguments": {
+                "x": {
+                  "from_node": "gte2"
+                },
+                "y": {
+                  "from_node": "lte1"
+                }
+              }
+            },
+            "if2": {
+              "process_id": "if",
+              "arguments": {
+                "accept": {
+                  "from_node": "multiply1"
+                },
+                "value": {
+                  "from_node": "and1"
+                }
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "applydimension1": {
+      "process_id": "apply_dimension",
+      "arguments": {
+        "data": {
+          "from_node": "apply1"
+        },
+        "dimension": "t",
+        "process": {
+          "process_graph": {
+            "runudf1": {
+              "process_id": "run_udf",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                },
+                "runtime": "Python",
+                "udf": "from openeo.udf import XarrayDataCube\nimport xarray\n\ndef apply_datacube(cube: XarrayDataCube, context: dict) -> XarrayDataCube:\n    \"\"\"calculation of the sum for a timestep representing an interval (here 10 daily)\n\n    :param cube: data cube\n    :param context: dictionary to provide external data - key class_mapping is used to provide external re-mapping dict\n    :return: original DataCube with inline adjusted values\n    \"\"\"\n    # get the array with the time dimension\n    array: xarray.DataArray = cube.get_array()\n\n    # extract number of days for a timestamp intervall\n    xdays = [10 if d <= 20 else m - 20 for (d, m) in zip(array.t.dt.day.values, array.t.dt.days_in_month.values)]\n\n    # multiply the array values of each timestamp with the amount of days\n    for i in range(array.values.shape[0]):\n        array.values[i, :, :] = array.values[i, :, :] * xdays[i]\n\n    return cube\n"
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "reducedimension1": {
+      "process_id": "reduce_dimension",
+      "arguments": {
+        "data": {
+          "from_node": "applydimension1"
+        },
+        "dimension": "t",
+        "reducer": {
+          "process_graph": {
+            "sum1": {
+              "process_id": "sum",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                }
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "resamplespatial1": {
+      "process_id": "resample_spatial",
+      "arguments": {
+        "align": "upper-left",
+        "data": {
+          "from_node": "reducedimension1"
+        },
+        "method": "bilinear",
+        "projection": {
+          "from_parameter": "output_epsg"
+        },
+        "resolution": {
+          "from_parameter": "resolution"
+        }
+      }
+    },
+    "if3": {
+      "process_id": "if",
+      "arguments": {
+        "accept": {
+          "from_node": "resamplespatial1"
+        },
+        "reject": {
+          "from_node": "reducedimension1"
+        },
+        "value": {
+          "from_parameter": "output_warp"
+        }
+      }
+    },
+    "filterspatial1": {
+      "process_id": "filter_spatial",
+      "arguments": {
+        "data": {
+          "from_node": "if3"
+        },
+        "geometries": {
+          "from_parameter": "geometry"
+        }
+      },
+      "result": true
+    }
+  },
+  "id": "udp_annual_total_gdmp",
+  "summary": "Annual total composite of Copernicus Global Land GDMP. Returns a single band RasterCube.",
+  "description": "Given a year and area of interest, returns a sum composite of [GDMP](https://land.copernicus.eu/global/products/dmp).",
+  "parameters": [
+    {
+      "name": "geometry",
+      "description": "Geometry as GeoJSON feature(s).",
+      "schema": {
+        "type": "object",
+        "subtype": "geojson"
+      }
+    },
+    {
+      "name": "year",
+      "description": "The year for which to generate an annual total composite.",
+      "schema": {
+        "type": "integer"
+      },
+      "default": 2021,
+      "optional": true
+    },
+    {
+      "name": "output_warp",
+      "description": "Boolean switch if output should be warped to given projection and resolution, default=False.",
+      "schema": {
+        "type": "boolean"
+      },
+      "default": false,
+      "optional": true
+    },
+    {
+      "name": "output_epsg",
+      "description": "The desired output projection system, which is EPSG:3035 by default.",
+      "schema": {
+        "type": "integer"
+      },
+      "default": 3035,
+      "optional": true
+    },
+    {
+      "name": "resolution",
+      "description": "The desired resolution, specified in units of the projection system, which is meters by default.",
+      "schema": {
+        "type": "number"
+      },
+      "default": 100,
+      "optional": true
+    }
+  ]
+}
