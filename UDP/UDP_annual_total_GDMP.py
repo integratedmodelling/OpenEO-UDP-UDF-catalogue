@@ -9,7 +9,7 @@ Export algorithm to UDP json, e.g.
 import json
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import if_, and_, gte, process, add, eq
+from openeo.processes import if_, and_, gte, process, add
 from openeo.rest.udp import build_process_dict
 
 # Establish connection to OpenEO instance (note that authentication is not necessary to just build the UDP)
@@ -62,7 +62,7 @@ cube = if_(gte(param_year, 2015), datacube1, datacube2)
 # masking to valid data and rescaling
 cube = cube.apply(lambda x: if_(and_(x >= 0, x <= 32767), x * 0.02))
 
-# since GDMP comes ion kg/ha/day we have to multiply the timestep values with the amount of days in intervall
+# since GDMP comes in kg/ha/day we have to multiply the timestep values with the amount of days in the 10-interval
 # load the UDF from URL (NOTE: you have to use the raw file download)
 url_raw = 'https://raw.githubusercontent.com/integratedmodelling/OpenEO-UDP-UDF-catalogue/main/UDF/UDF_intervall_sum.py'
 udf = openeo.UDF.from_url(url_raw)
@@ -75,7 +75,7 @@ cube = cube.reduce_dimension(dimension="t", reducer=lambda data: data.sum())
 cube_resample = cube.resample_spatial(resolution=param_resolution, projection=param_epsg, method="bilinear")
 cube = if_(param_warp, cube_resample, cube)
 
-# filter spatial by BBOX given in the specified EPSG
+# filter spatial by geometry given as GeoJSON
 cube = cube.filter_spatial(geometries=param_geo)
 
 description = """
