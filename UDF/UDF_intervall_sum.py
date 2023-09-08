@@ -1,4 +1,5 @@
 from openeo.udf import XarrayDataCube
+import xarray
 
 def apply_datacube(cube: XarrayDataCube, context: dict) -> XarrayDataCube:
     """calculation of the sum for a timestep representing an interval (here 10 daily)
@@ -8,7 +9,7 @@ def apply_datacube(cube: XarrayDataCube, context: dict) -> XarrayDataCube:
     :return: original DataCube with inline adjusted values
     """
     # get the array with the time dimension
-    array = cube.get_array()
+    array: xarray.DataArray = cube.get_array()
 
     # extract number of days for a timestamp intervall
     xdays = [10 if d <= 20 else m - 20 for (d, m) in zip(array.t.dt.day.values, array.t.dt.days_in_month.values)]
