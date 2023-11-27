@@ -147,11 +147,11 @@
     },
     {
       "name": "band",
-      "description": "Which band of the dataset to load (agb or sd).",
+      "description": "Which band of the dataset to load (AGB or SD).",
       "schema": {
         "type": "string"
       },
-      "default": "agb",
+      "default": "AGB",
       "optional": true
     }
   ]
