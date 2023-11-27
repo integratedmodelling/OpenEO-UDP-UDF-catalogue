@@ -48,8 +48,8 @@ param_resolution = Parameter.number(
 
 param_band = Parameter.string(
     name="band",
-    default="agb",
-    description="Which band of the dataset to load (agb or sd)."
+    default="AGB",
+    description="Which band of the dataset to load (AGB or SD)."
 )
 
 start = process("text_merge", data=[param_year, "01", "01"], separator="-")
