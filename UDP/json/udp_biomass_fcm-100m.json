@@ -1,0 +1,158 @@
+{
+  "process_graph": {
+    "textmerge1": {
+      "process_id": "text_merge",
+      "arguments": {
+        "data": [
+          {
+            "from_parameter": "year"
+          },
+          "01",
+          "01"
+        ],
+        "separator": "-"
+      }
+    },
+    "add1": {
+      "process_id": "add",
+      "arguments": {
+        "x": {
+          "from_parameter": "year"
+        },
+        "y": 1
+      }
+    },
+    "textmerge2": {
+      "process_id": "text_merge",
+      "arguments": {
+        "data": [
+          {
+            "from_node": "add1"
+          },
+          "01",
+          "01"
+        ],
+        "separator": "-"
+      }
+    },
+    "loadstac1": {
+      "process_id": "load_stac",
+      "arguments": {
+        "bands": [
+          {
+            "from_parameter": "band"
+          }
+        ],
+        "temporal_extent": [
+          {
+            "from_node": "textmerge1"
+          },
+          {
+            "from_node": "textmerge2"
+          }
+        ],
+        "url": "/data/MTDA/PEOPLE_EA/STAC_catalogs/ESA_forest_carbon_monitoring_100m/collection.json"
+      }
+    },
+    "resamplespatial1": {
+      "process_id": "resample_spatial",
+      "arguments": {
+        "align": "upper-left",
+        "data": {
+          "from_node": "loadstac1"
+        },
+        "method": "bilinear",
+        "projection": {
+          "from_parameter": "output_epsg"
+        },
+        "resolution": {
+          "from_parameter": "resolution"
+        }
+      }
+    },
+    "if1": {
+      "process_id": "if",
+      "arguments": {
+        "accept": {
+          "from_node": "resamplespatial1"
+        },
+        "reject": {
+          "from_node": "loadstac1"
+        },
+        "value": {
+          "from_parameter": "output_warp"
+        }
+      }
+    },
+    "filterspatial1": {
+      "process_id": "filter_spatial",
+      "arguments": {
+        "data": {
+          "from_node": "if1"
+        },
+        "geometries": {
+          "from_parameter": "geometry"
+        }
+      },
+      "result": true
+    }
+  },
+  "id": "udp_biomass_fcm-100m",
+  "summary": "Load the ESA forest carbon monitoring dataset for specified year and band. Returns a single band RasterCube.",
+  "description": "Given a year and area of interest, returns the specified band of the ESA forest carbon monitoring DEMO dataset.",
+  "parameters": [
+    {
+      "name": "geometry",
+      "description": "Geometry as GeoJSON feature(s).",
+      "schema": {
+        "type": "object",
+        "subtype": "geojson"
+      }
+    },
+    {
+      "name": "year",
+      "description": "The year for which to load the forest carbon monitoring. only 2020 or 2021.",
+      "schema": {
+        "type": "integer"
+      },
+      "default": 2020,
+      "optional": true
+    },
+    {
+      "name": "output_warp",
+      "description": "Boolean switch if output should be warped to given projection and resolution, default=False.",
+      "schema": {
+        "type": "boolean"
+      },
+      "default": false,
+      "optional": true
+    },
+    {
+      "name": "output_epsg",
+      "description": "The desired output projection system, which is EPSG:3035 by default.",
+      "schema": {
+        "type": "integer"
+      },
+      "default": 3035,
+      "optional": true
+    },
+    {
+      "name": "resolution",
+      "description": "The desired resolution, specified in units of the projection system, which is meters by default.",
+      "schema": {
+        "type": "number"
+      },
+      "default": 100,
+      "optional": true
+    },
+    {
+      "name": "band",
+      "description": "Which band of the dataset to load (AGB, AGB-SD, BGB, BGB-SD, GSV, GSV-SD).",
+      "schema": {
+        "type": "string"
+      },
+      "default": "AGB",
+      "optional": true
+    }
+  ]
+}
