@@ -46,8 +46,8 @@ param_resolution = Parameter.number(
     description="The desired resolution, specified in units of the projection system, which is meters by default.",
 )
 
-start = process("text_merge", data=[2000, "01", "01"], separator="-")
-end = process("text_merge", data=[add(param_year, 1), "01", "01"], separator="-")
+start = process("text_concat", data=[2000, "01", "01"], separator="-")
+end = process("text_concat", data=[add(param_year, 1), "01", "01"], separator="-")
 
 cube = connection.load_disk_collection(format="GTiff",
                                        glob_pattern="/data/users/Public/buchhornm/PEOPLE_INCA_cfactor/PEOPLE_INCA_c-factor_*_v1-1_100m_EPSG3035.tif",
