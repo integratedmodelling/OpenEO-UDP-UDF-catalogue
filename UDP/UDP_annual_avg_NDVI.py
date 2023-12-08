@@ -46,8 +46,8 @@ param_resolution = Parameter.number(
     description="The desired resolution, specified in units of the projection system, which is meters by default.",
 )
 
-start = process("text_merge", data=[param_year, "01", "01"], separator="-")
-end = process("text_merge", data=[add(param_year, 1), "01", "01"], separator="-")
+start = process("text_concat", data=[param_year, "01", "01"], separator="-")
+end = process("text_concat", data=[add(param_year, 1), "01", "01"], separator="-")
 
 # get datacube of the single collections (1km up to 2019, 300m 2021 onwards)
 datacube1 = connection.load_collection(
