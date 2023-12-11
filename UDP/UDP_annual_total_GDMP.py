@@ -1,16 +1,14 @@
 """
 UDP to generate an annual total GDMP product from the Copernicus GDMP datasets (1km & 300m)
 
-Export algorithm to UDP json, e.g.
-
-    python UDP/UDP_annual_total_GDMP.py > UDP/json/udp_annual_total_gdmp.json
-
 """
 import json
 import openeo
 from openeo.api.process import Parameter
 from openeo.processes import if_, and_, gte, process, add
 from openeo.rest.udp import build_process_dict
+import os
+import pathlib
 
 # Establish connection to OpenEO instance (note that authentication is not necessary to just build the UDP)
 connection = openeo.connect(url="openeo-dev.vito.be")
@@ -100,4 +98,9 @@ spec = build_process_dict(
     process_graph=cube,
 )
 
-print(json.dumps(spec, indent=2))
+# dump to json file to be usable as UDP
+this_script = pathlib.Path(__file__)
+json_file = os.path.normpath(os.path.join(this_script.parent, 'json', this_script.name.lower().split('.')[0] + '.json'))
+print(f"Writing UDP to {json_file}")
+with open(json_file, "w", encoding="UTF8") as f:
+    json.dump(spec, f, indent=2)
