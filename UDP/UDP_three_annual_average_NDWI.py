@@ -6,7 +6,7 @@ import json
 import os
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import if_, process, add
+from openeo.processes import if_, text_concat, add
 from openeo.rest.udp import build_process_dict
 import pathlib
 
@@ -44,8 +44,8 @@ param_resolution = Parameter.number(
     description="The desired resolution, specified in units of the projection system, which is meters by default.",
 )
 
-start = process("text_concat", data=[param_year, "01", "01"], separator="-")
-end = process("text_concat", data=[add(param_year, 1), "01", "01"], separator="-")
+start = text_concat([param_year, "01", "01"], separator="-")
+end = text_concat([add(param_year, 1), "01", "01"], separator="-")
 
 # get datacube of the single collections via the STAC
 cube = connection.load_stac(

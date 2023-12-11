@@ -6,7 +6,7 @@ dataset
 import json
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import if_, process, add
+from openeo.processes import if_, text_concat, add
 from openeo.rest.udp import build_process_dict
 import os
 import pathlib
@@ -51,8 +51,8 @@ param_band = Parameter.string(
     description="Which band of the dataset to load (AGB, AGB-SD, BGB, BGB-SD, GSV, GSV-SD)."
 )
 
-start = process("text_concat", data=[param_year, "01", "01"], separator="-")
-end = process("text_concat", data=[add(param_year, 1), "01", "01"], separator="-")
+start = text_concat([param_year, "01", "01"], separator="-")
+end = text_concat([add(param_year, 1), "01", "01"], separator="-")
 
 # get datacube of the single collections (1km up to 2019, 300m 2021 onwards)
 cube = connection.load_stac(
