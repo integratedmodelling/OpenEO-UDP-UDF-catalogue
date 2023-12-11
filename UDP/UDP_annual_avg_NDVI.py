@@ -5,7 +5,7 @@ UDP to generate an annual average NDVI product from the Copernicus NDVI datasets
 import json
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import if_, and_, gte, process, add, eq
+from openeo.processes import if_, and_, gte, add, eq, text_concat
 from openeo.rest.udp import build_process_dict
 import os
 import pathlib
@@ -44,8 +44,8 @@ param_resolution = Parameter.number(
     description="The desired resolution, specified in units of the projection system, which is meters by default.",
 )
 
-start = process("text_concat", data=[param_year, "01", "01"], separator="-")
-end = process("text_concat", data=[add(param_year, 1), "01", "01"], separator="-")
+start = text_concat([param_year, "01", "01"], separator="-")
+end = text_concat([add(param_year, 1), "01", "01"], separator="-")
 
 # get datacube of the single collections (1km up to 2019, 300m 2021 onwards)
 datacube1 = connection.load_collection(

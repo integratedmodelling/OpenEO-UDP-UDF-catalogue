@@ -5,7 +5,7 @@ UDP to generate an arable/non-arable mask by remapping the CORINE Accounting lay
 import json
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import if_, process, add
+from openeo.processes import if_, text_concat, add
 from openeo.rest.udp import build_process_dict
 import os
 import pathlib
@@ -52,8 +52,8 @@ param_resolution = Parameter.number(
     description="The desired resolution, specified in units of the projection system, which is meters by default.",
 )
 
-start = process("text_concat", data=[2000, "01", "01"], separator="-")
-end = process("text_concat", data=[add(param_year, 1), "01", "01"], separator="-")
+start = text_concat([2000, "01", "01"], separator="-")
+end = text_concat([add(param_year, 1), "01", "01"], separator="-")
 
 cube = connection.load_collection(
     "CORINE_LAND_COVER_ACCOUNTING_LAYERS", temporal_extent=[start, end], bands=["CLC_ACC"]

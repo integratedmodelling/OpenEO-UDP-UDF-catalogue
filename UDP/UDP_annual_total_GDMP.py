@@ -5,7 +5,7 @@ UDP to generate an annual total GDMP product from the Copernicus GDMP datasets (
 import json
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import if_, and_, gte, process, add
+from openeo.processes import if_, and_, gte, add, text_concat
 from openeo.rest.udp import build_process_dict
 import os
 import pathlib
@@ -44,8 +44,8 @@ param_resolution = Parameter.number(
     description="The desired resolution, specified in units of the projection system, which is meters by default.",
 )
 
-start = process("text_concat", data=[param_year, "01", "01"], separator="-")
-end = process("text_concat", data=[add(param_year, 1), "01", "01"], separator="-")
+start = text_concat([param_year, "01", "01"], separator="-")
+end = text_concat([add(param_year, 1), "01", "01"], separator="-")
 
 datacube1 = connection.load_collection(
     "CGLS_GDMP300_V1_GLOBAL", temporal_extent=[start, end], bands=["GDMP"]
