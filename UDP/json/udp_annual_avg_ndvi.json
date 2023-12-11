@@ -1,0 +1,416 @@
+{
+  "process_graph": {
+    "textconcat1": {
+      "process_id": "text_concat",
+      "arguments": {
+        "data": [
+          {
+            "from_parameter": "year"
+          },
+          "01",
+          "01"
+        ],
+        "separator": "-"
+      }
+    },
+    "add1": {
+      "process_id": "add",
+      "arguments": {
+        "x": {
+          "from_parameter": "year"
+        },
+        "y": 1
+      }
+    },
+    "textconcat2": {
+      "process_id": "text_concat",
+      "arguments": {
+        "data": [
+          {
+            "from_node": "add1"
+          },
+          "01",
+          "01"
+        ],
+        "separator": "-"
+      }
+    },
+    "loadcollection1": {
+      "process_id": "load_collection",
+      "arguments": {
+        "bands": [
+          "NDVI"
+        ],
+        "id": "CGLS_NDVI_V3_GLOBAL",
+        "spatial_extent": null,
+        "temporal_extent": [
+          {
+            "from_node": "textconcat1"
+          },
+          {
+            "from_node": "textconcat2"
+          }
+        ]
+      }
+    },
+    "apply1": {
+      "process_id": "apply",
+      "arguments": {
+        "data": {
+          "from_node": "loadcollection1"
+        },
+        "process": {
+          "process_graph": {
+            "divide1": {
+              "process_id": "divide",
+              "arguments": {
+                "x": {
+                  "from_parameter": "x"
+                },
+                "y": 250.0
+              }
+            },
+            "subtract1": {
+              "process_id": "subtract",
+              "arguments": {
+                "x": {
+                  "from_node": "divide1"
+                },
+                "y": 0.08
+              }
+            },
+            "gte1": {
+              "process_id": "gte",
+              "arguments": {
+                "x": {
+                  "from_parameter": "x"
+                },
+                "y": 0
+              }
+            },
+            "lte1": {
+              "process_id": "lte",
+              "arguments": {
+                "x": {
+                  "from_parameter": "x"
+                },
+                "y": 250
+              }
+            },
+            "and1": {
+              "process_id": "and",
+              "arguments": {
+                "x": {
+                  "from_node": "gte1"
+                },
+                "y": {
+                  "from_node": "lte1"
+                }
+              }
+            },
+            "if1": {
+              "process_id": "if",
+              "arguments": {
+                "accept": {
+                  "from_node": "subtract1"
+                },
+                "value": {
+                  "from_node": "and1"
+                }
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "loadcollection2": {
+      "process_id": "load_collection",
+      "arguments": {
+        "bands": [
+          "NDVI"
+        ],
+        "id": "CGLS_NDVI300_V2_GLOBAL",
+        "spatial_extent": null,
+        "temporal_extent": [
+          {
+            "from_node": "textconcat1"
+          },
+          {
+            "from_node": "textconcat2"
+          }
+        ]
+      }
+    },
+    "apply2": {
+      "process_id": "apply",
+      "arguments": {
+        "data": {
+          "from_node": "loadcollection2"
+        },
+        "process": {
+          "process_graph": {
+            "divide2": {
+              "process_id": "divide",
+              "arguments": {
+                "x": {
+                  "from_parameter": "x"
+                },
+                "y": 250.0
+              }
+            },
+            "subtract2": {
+              "process_id": "subtract",
+              "arguments": {
+                "x": {
+                  "from_node": "divide2"
+                },
+                "y": 0.08
+              }
+            },
+            "gte2": {
+              "process_id": "gte",
+              "arguments": {
+                "x": {
+                  "from_parameter": "x"
+                },
+                "y": 0
+              }
+            },
+            "lte2": {
+              "process_id": "lte",
+              "arguments": {
+                "x": {
+                  "from_parameter": "x"
+                },
+                "y": 250
+              }
+            },
+            "and2": {
+              "process_id": "and",
+              "arguments": {
+                "x": {
+                  "from_node": "gte2"
+                },
+                "y": {
+                  "from_node": "lte2"
+                }
+              }
+            },
+            "if2": {
+              "process_id": "if",
+              "arguments": {
+                "accept": {
+                  "from_node": "subtract2"
+                },
+                "value": {
+                  "from_node": "and2"
+                }
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "resamplecubespatial1": {
+      "process_id": "resample_cube_spatial",
+      "arguments": {
+        "data": {
+          "from_node": "apply2"
+        },
+        "method": "average",
+        "target": {
+          "from_node": "apply1"
+        }
+      }
+    },
+    "mergecubes1": {
+      "process_id": "merge_cubes",
+      "arguments": {
+        "cube1": {
+          "from_node": "apply1"
+        },
+        "cube2": {
+          "from_node": "resamplecubespatial1"
+        },
+        "overlap_resolver": {
+          "process_graph": {
+            "max1": {
+              "process_id": "max",
+              "arguments": {
+                "data": [
+                  {
+                    "from_parameter": "x"
+                  },
+                  {
+                    "from_parameter": "y"
+                  }
+                ]
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "eq1": {
+      "process_id": "eq",
+      "arguments": {
+        "x": {
+          "from_parameter": "year"
+        },
+        "y": 2020
+      }
+    },
+    "if3": {
+      "process_id": "if",
+      "arguments": {
+        "accept": {
+          "from_node": "mergecubes1"
+        },
+        "reject": {
+          "from_node": "apply2"
+        },
+        "value": {
+          "from_node": "eq1"
+        }
+      }
+    },
+    "gte3": {
+      "process_id": "gte",
+      "arguments": {
+        "x": {
+          "from_parameter": "year"
+        },
+        "y": 2020
+      }
+    },
+    "if4": {
+      "process_id": "if",
+      "arguments": {
+        "accept": {
+          "from_node": "if3"
+        },
+        "reject": {
+          "from_node": "apply1"
+        },
+        "value": {
+          "from_node": "gte3"
+        }
+      }
+    },
+    "reducedimension1": {
+      "process_id": "reduce_dimension",
+      "arguments": {
+        "data": {
+          "from_node": "if4"
+        },
+        "dimension": "t",
+        "reducer": {
+          "process_graph": {
+            "mean1": {
+              "process_id": "mean",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                }
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "resamplespatial1": {
+      "process_id": "resample_spatial",
+      "arguments": {
+        "data": {
+          "from_node": "reducedimension1"
+        },
+        "method": "bilinear",
+        "projection": {
+          "from_parameter": "output_epsg"
+        },
+        "resolution": {
+          "from_parameter": "resolution"
+        }
+      }
+    },
+    "if5": {
+      "process_id": "if",
+      "arguments": {
+        "accept": {
+          "from_node": "resamplespatial1"
+        },
+        "reject": {
+          "from_node": "reducedimension1"
+        },
+        "value": {
+          "from_parameter": "output_warp"
+        }
+      }
+    },
+    "filterspatial1": {
+      "process_id": "filter_spatial",
+      "arguments": {
+        "data": {
+          "from_node": "if5"
+        },
+        "geometries": {
+          "from_parameter": "geometry"
+        }
+      },
+      "result": true
+    }
+  },
+  "id": "udp_annual_avg_ndvi",
+  "summary": "Annual mean composite of Copernicus Global Land NDVI. Returns a single band RasterCube.",
+  "description": "Given a year and area of interest, returns a mean composite of [NDVI](https://land.copernicus.eu/global/products/ndvi).",
+  "parameters": [
+    {
+      "name": "geometry",
+      "description": "Geometry as GeoJSON feature(s).",
+      "schema": {
+        "type": "object",
+        "subtype": "geojson"
+      }
+    },
+    {
+      "name": "year",
+      "description": "The year for which to generate an annual mean composite.",
+      "schema": {
+        "type": "integer"
+      },
+      "default": 2021,
+      "optional": true
+    },
+    {
+      "name": "output_warp",
+      "description": "Boolean switch if output should be warped to given projection and resolution, default=False.",
+      "schema": {
+        "type": "boolean"
+      },
+      "default": false,
+      "optional": true
+    },
+    {
+      "name": "output_epsg",
+      "description": "The desired output projection system, which is EPSG:3035 by default.",
+      "schema": {
+        "type": "integer"
+      },
+      "default": 3035,
+      "optional": true
+    },
+    {
+      "name": "resolution",
+      "description": "The desired resolution, specified in units of the projection system, which is meters by default.",
+      "schema": {
+        "type": "number"
+      },
+      "default": 100,
+      "optional": true
+    }
+  ]
+}
