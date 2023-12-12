@@ -4,9 +4,7 @@
       "process_id": "text_concat",
       "arguments": {
         "data": [
-          {
-            "from_parameter": "year"
-          },
+          2000,
           "01",
           "01"
         ],
@@ -54,12 +52,72 @@
         "url": "/data/MTDA/PEOPLE_EA/STAC_catalogs/ESA_forest_carbon_monitoring_20m/collection.json"
       }
     },
+    "reducedimension1": {
+      "process_id": "reduce_dimension",
+      "arguments": {
+        "data": {
+          "from_node": "loadstac1"
+        },
+        "dimension": "t",
+        "reducer": {
+          "process_graph": {
+            "last1": {
+              "process_id": "last",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                },
+                "ignore_nodata": false
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
+    "loadstac2": {
+      "process_id": "load_stac",
+      "arguments": {
+        "bands": [
+          {
+            "from_parameter": "band"
+          }
+        ],
+        "temporal_extent": [
+          "2020-01-01",
+          "2021-01-01"
+        ],
+        "url": "/data/MTDA/PEOPLE_EA/STAC_catalogs/ESA_forest_carbon_monitoring_20m/collection.json"
+      }
+    },
+    "gte1": {
+      "process_id": "gte",
+      "arguments": {
+        "x": {
+          "from_parameter": "year"
+        },
+        "y": 2020
+      }
+    },
+    "if1": {
+      "process_id": "if",
+      "arguments": {
+        "accept": {
+          "from_node": "reducedimension1"
+        },
+        "reject": {
+          "from_node": "loadstac2"
+        },
+        "value": {
+          "from_node": "gte1"
+        }
+      }
+    },
     "resamplespatial1": {
       "process_id": "resample_spatial",
       "arguments": {
-        "align": "upper-left",
         "data": {
-          "from_node": "loadstac1"
+          "from_node": "if1"
         },
         "method": "bilinear",
         "projection": {
@@ -70,14 +128,14 @@
         }
       }
     },
-    "if1": {
+    "if2": {
       "process_id": "if",
       "arguments": {
         "accept": {
           "from_node": "resamplespatial1"
         },
         "reject": {
-          "from_node": "loadstac1"
+          "from_node": "if1"
         },
         "value": {
           "from_parameter": "output_warp"
@@ -88,7 +146,7 @@
       "process_id": "filter_spatial",
       "arguments": {
         "data": {
-          "from_node": "if1"
+          "from_node": "if2"
         },
         "geometries": {
           "from_parameter": "geometry"
@@ -111,7 +169,7 @@
     },
     {
       "name": "year",
-      "description": "The year for which to load the forest carbon monitoring. only 2020 or 2021.",
+      "description": "The year for which to load the forest carbon monitoring.",
       "schema": {
         "type": "integer"
       },

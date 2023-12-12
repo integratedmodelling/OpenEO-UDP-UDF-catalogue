@@ -5,7 +5,7 @@ UDP to load the annual biomass dataset for AGB or SD from the ESA CCI Biomass v4
 import json
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import if_, text_concat, add
+from openeo.processes import if_, text_concat, add, gte
 from openeo.rest.udp import build_process_dict
 import os
 import pathlib
@@ -23,7 +23,7 @@ param_geo = Parameter(
 param_year = Parameter.integer(
     name="year",
     default=2020,
-    description="The year for which to load the CCI biomass v4. only 2010,2017,2018,2019 or 2020.",
+    description="The year for which to load the CCI biomass v4.",
 )
 
 param_warp = Parameter.boolean(
@@ -50,15 +50,28 @@ param_band = Parameter.string(
     description="Which band of the dataset to load (AGB or SD)."
 )
 
-start = text_concat([param_year, "01", "01"], separator="-")
+# get datacube of the latest observation available
+start = text_concat([2000, "01", "01"], separator="-")
 end = text_concat([add(param_year, 1), "01", "01"], separator="-")
 
-# get datacube of the single collections (1km up to 2019, 300m 2021 onwards)
-cube = connection.load_stac(
+cube1 = connection.load_stac(
     "/data/MTDA/PEOPLE_EA/STAC_catalogs/ESA_biomass_cci_v4/collection.json",
     temporal_extent=[start, end],
     bands=[param_band]
 )
+# reduce the temporal dimension to last observation
+cube1 = cube1.reduce_dimension(dimension='t', reducer=lambda x: x.last(ignore_nodata=False))
+
+# get backwards cube
+cube2 = connection.load_stac(
+    "/data/MTDA/PEOPLE_EA/STAC_catalogs/ESA_biomass_cci_v4/collection.json",
+    temporal_extent=['2010-01-01', '2011-01-01'],
+    bands=[param_band]
+)
+
+# do the selection of the cube we need
+# before 2020 that is the year 2020 and after that it is the latest available dataset
+cube = if_(gte(param_year, 2010), cube1, cube2)
 
 # warp to specified projection and resolution if needed
 cube_resample = cube.resample_spatial(resolution=param_resolution, projection=param_epsg, method="bilinear")
