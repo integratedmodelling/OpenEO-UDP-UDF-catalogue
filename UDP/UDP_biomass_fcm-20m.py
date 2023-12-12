@@ -53,7 +53,9 @@ param_band = Parameter.string(
 
 # get datacube of the latest observation available
 start = text_concat([2000, "01", "01"], separator="-")
-end = text_concat([add(param_year, 1), "01", "01"], separator="-")
+#end = text_concat([add(param_year, 1), "01", "01"], separator="-")
+end = text_concat([param_year, "12", "31"], separator="-")
+
 
 cube1 = connection.load_stac(
     "/data/MTDA/PEOPLE_EA/STAC_catalogs/ESA_forest_carbon_monitoring_20m/collection.json",
@@ -64,11 +66,18 @@ cube1 = connection.load_stac(
 cube1 = cube1.reduce_dimension(dimension='t', reducer=lambda x: x.last(ignore_nodata=False))
 
 # get backwards cube
+# cube2 = connection.load_stac(
+#     "/data/MTDA/PEOPLE_EA/STAC_catalogs/ESA_forest_carbon_monitoring_20m/collection.json",
+#     temporal_extent=['2020-01-01', '2021-01-01'],
+#     bands=[param_band]
+# )
+
 cube2 = connection.load_stac(
     "/data/MTDA/PEOPLE_EA/STAC_catalogs/ESA_forest_carbon_monitoring_20m/collection.json",
-    temporal_extent=['2020-01-01', '2021-01-01'],
+    temporal_extent=['2020-01-01', '2020-12-31'],
     bands=[param_band]
 )
+
 
 # do the selection of the cube we need
 # before 2020 that is the year 2020 and after that it is the latest available dataset

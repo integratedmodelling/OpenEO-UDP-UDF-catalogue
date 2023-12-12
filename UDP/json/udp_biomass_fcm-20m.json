@@ -11,24 +11,15 @@
         "separator": "-"
       }
     },
-    "add1": {
-      "process_id": "add",
-      "arguments": {
-        "x": {
-          "from_parameter": "year"
-        },
-        "y": 1
-      }
-    },
     "textconcat2": {
       "process_id": "text_concat",
       "arguments": {
         "data": [
           {
-            "from_node": "add1"
+            "from_parameter": "year"
           },
-          "01",
-          "01"
+          "12",
+          "31"
         ],
         "separator": "-"
       }
@@ -85,7 +76,7 @@
         ],
         "temporal_extent": [
           "2020-01-01",
-          "2021-01-01"
+          "2020-12-31"
         ],
         "url": "/data/MTDA/PEOPLE_EA/STAC_catalogs/ESA_forest_carbon_monitoring_20m/collection.json"
       }
