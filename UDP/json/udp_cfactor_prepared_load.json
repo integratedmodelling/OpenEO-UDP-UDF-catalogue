@@ -1,26 +1,5 @@
 {
   "process_graph": {
-    "loaddiskdata1": {
-      "process_id": "load_disk_data",
-      "arguments": {
-        "format": "GTiff",
-        "glob_pattern": "/data/users/Public/buchhornm/PEOPLE_INCA_cfactor/PEOPLE_INCA_c-factor_*_v1-1_100m_EPSG3035.tif",
-        "options": {
-          "date_regex": ".*_(\\d{4})(\\d{2})(\\d{2})_v1-1_100m_EPSG3035.tif"
-        }
-      }
-    },
-    "filterspatial1": {
-      "process_id": "filter_spatial",
-      "arguments": {
-        "data": {
-          "from_node": "loaddiskdata1"
-        },
-        "geometries": {
-          "from_parameter": "geometry"
-        }
-      }
-    },
     "textconcat1": {
       "process_id": "text_concat",
       "arguments": {
@@ -54,27 +33,28 @@
         "separator": "-"
       }
     },
-    "filtertemporal1": {
-      "process_id": "filter_temporal",
+    "loadstac1": {
+      "process_id": "load_stac",
       "arguments": {
-        "data": {
-          "from_node": "filterspatial1"
-        },
-        "extent": [
+        "bands": [
+          "cfactor"
+        ],
+        "temporal_extent": [
           {
             "from_node": "textconcat1"
           },
           {
             "from_node": "textconcat2"
           }
-        ]
+        ],
+        "url": "/data/MTDA/PEOPLE_EA/STAC_catalogs/PEOPLE_INCA_cfactor/collection.json"
       }
     },
     "reducedimension1": {
       "process_id": "reduce_dimension",
       "arguments": {
         "data": {
-          "from_node": "filtertemporal1"
+          "from_node": "loadstac1"
         },
         "dimension": "t",
         "reducer": {
@@ -120,6 +100,17 @@
         },
         "value": {
           "from_parameter": "output_warp"
+        }
+      }
+    },
+    "filterspatial1": {
+      "process_id": "filter_spatial",
+      "arguments": {
+        "data": {
+          "from_node": "if1"
+        },
+        "geometries": {
+          "from_parameter": "geometry"
         }
       },
       "result": true

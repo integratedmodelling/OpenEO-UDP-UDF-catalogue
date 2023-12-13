@@ -47,13 +47,11 @@ param_resolution = Parameter.number(
 start = text_concat([2000, "01", "01"], separator="-")
 end = text_concat([add(param_year, 1), "01", "01"], separator="-")
 
-cube = connection.load_disk_collection(format="GTiff",
-                                       glob_pattern="/data/users/Public/buchhornm/PEOPLE_INCA_cfactor/PEOPLE_INCA_c-factor_*_v1-1_100m_EPSG3035.tif",
-                                       options=dict(date_regex='.*_(\d{4})(\d{2})(\d{2})_v1-1_100m_EPSG3035.tif'))
-
-# filter temporal and spatial
-cube = cube.filter_spatial(geometries=param_geo)
-cube = cube.filter_temporal([start, end])
+cube = connection.load_stac(
+    "/data/MTDA/PEOPLE_EA/STAC_catalogs/PEOPLE_INCA_cfactor/collection.json",
+    temporal_extent=[start, end],
+    bands=['cfactor']
+)
 
 # reduce the temporal dimension to last observation - closest to requested year
 cube = cube.reduce_dimension(dimension='t', reducer=lambda x: x.last(ignore_nodata=False))
@@ -61,6 +59,9 @@ cube = cube.reduce_dimension(dimension='t', reducer=lambda x: x.last(ignore_noda
 # warp to specified projection and resolution if needed
 cube_resample = cube.resample_spatial(resolution=param_resolution, projection=param_epsg, method="near")
 cube = if_(param_warp, cube_resample, cube)
+
+# filter temporal and spatial
+cube = cube.filter_spatial(geometries=param_geo)
 
 description = """
 Loads the prepared c-factor raster dataset from the INCA tool for the soil retention claculation.
