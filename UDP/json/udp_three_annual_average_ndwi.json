@@ -4,9 +4,7 @@
       "process_id": "text_concat",
       "arguments": {
         "data": [
-          {
-            "from_parameter": "year"
-          },
+          2000,
           "01",
           "01"
         ],
@@ -52,12 +50,35 @@
         "url": "/data/MTDA/PEOPLE_EA/STAC_catalogs/Landsat_three-annual_NDWI_v1/collection.json"
       }
     },
+    "reducedimension1": {
+      "process_id": "reduce_dimension",
+      "arguments": {
+        "data": {
+          "from_node": "loadstac1"
+        },
+        "dimension": "t",
+        "reducer": {
+          "process_graph": {
+            "last1": {
+              "process_id": "last",
+              "arguments": {
+                "data": {
+                  "from_parameter": "data"
+                },
+                "ignore_nodata": false
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    },
     "resamplespatial1": {
       "process_id": "resample_spatial",
       "arguments": {
         "align": "upper-left",
         "data": {
-          "from_node": "loadstac1"
+          "from_node": "reducedimension1"
         },
         "method": "bilinear",
         "projection": {
@@ -75,7 +96,7 @@
           "from_node": "resamplespatial1"
         },
         "reject": {
-          "from_node": "loadstac1"
+          "from_node": "reducedimension1"
         },
         "value": {
           "from_parameter": "output_warp"

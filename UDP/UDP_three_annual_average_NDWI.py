@@ -44,7 +44,7 @@ param_resolution = Parameter.number(
     description="The desired resolution, specified in units of the projection system, which is meters by default.",
 )
 
-start = text_concat([param_year, "01", "01"], separator="-")
+start = text_concat([2000, "01", "01"], separator="-")
 end = text_concat([add(param_year, 1), "01", "01"], separator="-")
 
 # get datacube of the single collections via the STAC
@@ -53,6 +53,9 @@ cube = connection.load_stac(
     temporal_extent=[start, end],
     bands=['NDWI']
 )
+
+# reduce the temporal dimension to last observation
+cube = cube.reduce_dimension(dimension='t', reducer=lambda x: x.last(ignore_nodata=False))
 
 # warp to specified projection and resolution if needed
 cube_resample = cube.resample_spatial(resolution=param_resolution, projection=param_epsg, method="bilinear")
