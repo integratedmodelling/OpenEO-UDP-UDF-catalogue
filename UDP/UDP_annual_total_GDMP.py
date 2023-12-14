@@ -11,7 +11,7 @@ import os
 import pathlib
 
 # Establish connection to OpenEO instance (note that authentication is not necessary to just build the UDP)
-connection = openeo.connect(url="openeo-dev.vito.be")
+connection = openeo.connect(url="openeo.vito.be")
 
 # set up the UDP parameters
 param_geo = Parameter(
