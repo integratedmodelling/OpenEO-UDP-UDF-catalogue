@@ -6,7 +6,7 @@ import json
 import os
 import openeo
 from openeo.api.process import Parameter
-from openeo.processes import if_, text_concat, add
+from openeo.processes import if_, text_concat, add, gte
 from openeo.rest.udp import build_process_dict
 import pathlib
 
@@ -44,18 +44,25 @@ param_resolution = Parameter.number(
     description="The desired resolution, specified in units of the projection system, which is meters by default.",
 )
 
-start = text_concat([2000, "01", "01"], separator="-")
+start = text_concat([param_year, "01", "01"], separator="-")
 end = text_concat([add(param_year, 1), "01", "01"], separator="-")
 
 # get datacube of the single collections via the STAC
-cube = connection.load_stac(
+cube1 = connection.load_stac(
     "/data/MTDA/PEOPLE_EA/STAC_catalogs/Landsat_three-annual_NDWI_v1/collection.json",
     temporal_extent=[start, end],
     bands=['NDWI']
 )
 
-# reduce the temporal dimension to last observation
-cube = cube.reduce_dimension(dimension='t', reducer=lambda x: x.last(ignore_nodata=False))
+# get cube for after 2021
+cube2 = connection.load_stac(
+    "/data/MTDA/PEOPLE_EA/STAC_catalogs/Landsat_three-annual_NDWI_v1/collection.json",
+    temporal_extent=['2021-01-01', '2022-01-01'],
+    bands=['NDWI']
+)
+
+# make selection to fake data after 2021
+cube = if_(gte(param_year, 2022), cube2, cube1)
 
 # warp to specified projection and resolution if needed
 cube_resample = cube.resample_spatial(resolution=param_resolution, projection=param_epsg, method="bilinear")

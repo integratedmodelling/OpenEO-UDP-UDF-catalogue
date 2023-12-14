@@ -1,10 +1,25 @@
 {
   "process_graph": {
+    "loadstac1": {
+      "process_id": "load_stac",
+      "arguments": {
+        "bands": [
+          "NDWI"
+        ],
+        "temporal_extent": [
+          "2021-01-01",
+          "2022-01-01"
+        ],
+        "url": "/data/MTDA/PEOPLE_EA/STAC_catalogs/Landsat_three-annual_NDWI_v1/collection.json"
+      }
+    },
     "textconcat1": {
       "process_id": "text_concat",
       "arguments": {
         "data": [
-          2000,
+          {
+            "from_parameter": "year"
+          },
           "01",
           "01"
         ],
@@ -33,7 +48,7 @@
         "separator": "-"
       }
     },
-    "loadstac1": {
+    "loadstac2": {
       "process_id": "load_stac",
       "arguments": {
         "bands": [
@@ -50,35 +65,34 @@
         "url": "/data/MTDA/PEOPLE_EA/STAC_catalogs/Landsat_three-annual_NDWI_v1/collection.json"
       }
     },
-    "reducedimension1": {
-      "process_id": "reduce_dimension",
+    "gte1": {
+      "process_id": "gte",
       "arguments": {
-        "data": {
+        "x": {
+          "from_parameter": "year"
+        },
+        "y": 2022
+      }
+    },
+    "if1": {
+      "process_id": "if",
+      "arguments": {
+        "accept": {
           "from_node": "loadstac1"
         },
-        "dimension": "t",
-        "reducer": {
-          "process_graph": {
-            "last1": {
-              "process_id": "last",
-              "arguments": {
-                "data": {
-                  "from_parameter": "data"
-                },
-                "ignore_nodata": false
-              },
-              "result": true
-            }
-          }
+        "reject": {
+          "from_node": "loadstac2"
+        },
+        "value": {
+          "from_node": "gte1"
         }
       }
     },
     "resamplespatial1": {
       "process_id": "resample_spatial",
       "arguments": {
-        "align": "upper-left",
         "data": {
-          "from_node": "reducedimension1"
+          "from_node": "if1"
         },
         "method": "bilinear",
         "projection": {
@@ -89,14 +103,14 @@
         }
       }
     },
-    "if1": {
+    "if2": {
       "process_id": "if",
       "arguments": {
         "accept": {
           "from_node": "resamplespatial1"
         },
         "reject": {
-          "from_node": "reducedimension1"
+          "from_node": "if1"
         },
         "value": {
           "from_parameter": "output_warp"
@@ -107,7 +121,7 @@
       "process_id": "filter_spatial",
       "arguments": {
         "data": {
-          "from_node": "if1"
+          "from_node": "if2"
         },
         "geometries": {
           "from_parameter": "geometry"
